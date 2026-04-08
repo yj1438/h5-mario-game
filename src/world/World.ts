@@ -27,6 +27,8 @@ export class World {
   private jumpBufferTimer = 0;
   private coyoteTimer = 0;
   private lookAheadX = 0;
+  private jumpQueued = false;
+  private jumpConsumedUntilRelease = false;
 
   won = false;
 
@@ -52,11 +54,11 @@ export class World {
     while (this.accumulator >= FIXED_TIME_STEP) {
       this.step(FIXED_TIME_STEP, input);
       this.accumulator -= FIXED_TIME_STEP;
+      input.beginFrame();
     }
 
     this.player.syncView();
     this.goal.syncView();
-    input.beginFrame();
   }
 
   restart(): void {
@@ -64,6 +66,8 @@ export class World {
     this.jumpBufferTimer = 0;
     this.coyoteTimer = 0;
     this.lookAheadX = 0;
+    this.jumpQueued = false;
+    this.jumpConsumedUntilRelease = false;
     this.won = false;
     this.updateCamera();
   }
@@ -75,11 +79,23 @@ export class World {
 
     const direction = (input.isLeftHeld() ? -1 : 0) + (input.isRightHeld() ? 1 : 0);
     const jumpPressedThisFrame = input.wasJumpPressed();
+    const jumpHeld = input.isJumpHeld();
 
-    this.jumpBufferTimer = jumpPressedThisFrame ? JUMP_BUFFER_TIME : Math.max(0, this.jumpBufferTimer - deltaTime);
+    if (jumpPressedThisFrame) {
+      this.jumpQueued = true;
+      this.jumpBufferTimer = JUMP_BUFFER_TIME;
+    } else if (this.jumpQueued && !this.jumpConsumedUntilRelease && jumpHeld) {
+      this.jumpBufferTimer = JUMP_BUFFER_TIME;
+    } else {
+      this.jumpBufferTimer = Math.max(0, this.jumpBufferTimer - deltaTime);
+    }
+
+    if (!jumpHeld) {
+      this.jumpQueued = false;
+      this.jumpConsumedUntilRelease = false;
+    }
+
     this.coyoteTimer = this.player.grounded ? COYOTE_TIME : Math.max(0, this.coyoteTimer - deltaTime);
-
-    const canJumpNow = this.jumpBufferTimer > 0 && this.coyoteTimer > 0;
 
     this.player.velocityX = updateHorizontalVelocity(
       {
@@ -89,7 +105,7 @@ export class World {
       },
       {
         direction: direction as -1 | 0 | 1,
-        jumpPressed: canJumpNow,
+        jumpPressed: false,
       },
       PLAYER_CONFIG,
       deltaTime,
@@ -99,20 +115,15 @@ export class World {
       {
         velocityX: this.player.velocityX,
         velocityY: this.player.velocityY,
-        grounded: this.coyoteTimer > 0,
+        grounded: false,
       },
       {
         direction: direction as -1 | 0 | 1,
-        jumpPressed: canJumpNow,
+        jumpPressed: false,
       },
       PLAYER_CONFIG,
       deltaTime,
     );
-
-    if (canJumpNow) {
-      this.jumpBufferTimer = 0;
-      this.coyoteTimer = 0;
-    }
 
     const movement = resolveAxisAlignedMovement(
       this.player.getBounds(),
@@ -142,6 +153,28 @@ export class World {
       this.player.velocityY = 0;
       this.player.grounded = true;
       this.coyoteTimer = COYOTE_TIME;
+    }
+
+    const canJumpNow = this.jumpQueued && this.jumpBufferTimer > 0 && this.coyoteTimer > 0 && !this.jumpConsumedUntilRelease;
+    if (canJumpNow) {
+      this.player.velocityY = updateVerticalVelocity(
+        {
+          velocityX: this.player.velocityX,
+          velocityY: this.player.velocityY,
+          grounded: true,
+        },
+        {
+          direction: direction as -1 | 0 | 1,
+          jumpPressed: true,
+        },
+        PLAYER_CONFIG,
+        deltaTime,
+      );
+      this.player.grounded = false;
+      this.jumpQueued = false;
+      this.jumpConsumedUntilRelease = true;
+      this.jumpBufferTimer = 0;
+      this.coyoteTimer = 0;
     }
 
     if (intersects(this.player.getBounds(), this.goal.getBounds())) {
