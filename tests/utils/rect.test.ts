@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { containsPoint, intersects } from './rect';
+import { containsPoint, intersects } from '../../src/utils/rect';
 
 describe('rect utils', () => {
   it('detects rectangle intersection', () => {

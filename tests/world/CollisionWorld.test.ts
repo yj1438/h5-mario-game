@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { CollisionWorld } from './CollisionWorld';
-import type { LevelData } from './Level';
+import { CollisionWorld } from '../../src/world/CollisionWorld';
+import type { LevelData } from '../../src/world/Level';
 
 const level: LevelData = {
   name: 'test',

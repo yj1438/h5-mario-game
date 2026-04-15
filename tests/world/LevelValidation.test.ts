@@ -1,8 +1,8 @@
 import { describe, it, expect } from 'vitest';
-import { FIXED_TIME_STEP, PLAYER_CONFIG, TILE_SIZE } from '../app/config/gameConfig';
-import type { LevelData, TileValue } from './Level';
-import { computeMaxJumpHeight, validateLevel, extractPlatforms, horizontalReachAtHeight } from './LevelValidation';
-import { level1 } from '../data/levels/level1';
+import { FIXED_TIME_STEP, PLAYER_CONFIG, TILE_SIZE } from '../../src/app/config/gameConfig';
+import type { LevelData, TileValue } from '../../src/world/Level';
+import { computeMaxJumpHeight, validateLevel, extractPlatforms, horizontalReachAtHeight } from '../../src/world/LevelValidation';
+import { level1 } from '../../src/data/levels/level1';
 
 describe('LevelValidation', () => {
   describe('computeMaxJumpHeight', () => {

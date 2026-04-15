@@ -1,10 +1,10 @@
 import { Container } from 'pixi.js';
 import { beforeAll, describe, expect, it, vi } from 'vitest';
-import { FIXED_TIME_STEP, PLAYER_CONFIG, TILE_SIZE } from '../app/config/gameConfig';
-import { World } from './World';
-import type { LevelData } from './Level';
+import { FIXED_TIME_STEP, PLAYER_CONFIG, TILE_SIZE } from '../../src/app/config/gameConfig';
+import { World } from '../../src/world/World';
+import type { LevelData } from '../../src/world/Level';
 
-vi.mock('../rendering/PlaceholderFactory', () => ({
+vi.mock('../../src/rendering/PlaceholderFactory', () => ({
   createBackground: () => new Container(),
   createGoalView: () => new Container(),
   createPlayerView: () => new Container(),

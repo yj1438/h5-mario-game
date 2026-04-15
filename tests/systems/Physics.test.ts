@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { updateHorizontalVelocity, updateVerticalVelocity } from './Physics';
+import { updateHorizontalVelocity, updateVerticalVelocity } from '../../src/systems/Physics';
 
 const config = {
   moveAcceleration: 1000,

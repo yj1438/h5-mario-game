@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { resolveAxisAlignedMovement } from './Collision';
+import { resolveAxisAlignedMovement } from '../../src/systems/Collision';
 
 describe('collision resolution', () => {
   it('lands on top of a solid tile', () => {
