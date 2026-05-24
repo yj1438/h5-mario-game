@@ -19,6 +19,7 @@ export interface MovementState {
 export interface MovementIntent {
   direction: -1 | 0 | 1;
   jumpPressed: boolean;
+  jumpHeld: boolean;
 }
 
 export const updateHorizontalVelocity = (
@@ -50,5 +51,11 @@ export const updateVerticalVelocity = (
     return -config.jumpVelocity;
   }
 
-  return clamp(state.velocityY + config.gravity * deltaTime, -config.jumpVelocity, config.maxFallSpeed);
+  let velocityY = state.velocityY + config.gravity * deltaTime;
+
+  if (!intent.jumpHeld && velocityY < 0) {
+    velocityY = Math.max(velocityY * 0.45, -config.jumpVelocity);
+  }
+
+  return clamp(velocityY, -Infinity, config.maxFallSpeed);
 };

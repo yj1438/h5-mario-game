@@ -29,6 +29,7 @@ export class World {
   private lookAheadX = 0;
   private jumpQueued = false;
   private jumpConsumedUntilRelease = false;
+  private wasGroundedLastStep = false;
 
   won = false;
 
@@ -68,6 +69,7 @@ export class World {
     this.lookAheadX = 0;
     this.jumpQueued = false;
     this.jumpConsumedUntilRelease = false;
+    this.wasGroundedLastStep = false;
     this.won = false;
     this.updateCamera();
   }
@@ -81,10 +83,9 @@ export class World {
     const jumpPressedThisFrame = input.wasJumpPressed();
     const jumpHeld = input.isJumpHeld();
 
+    // Jump buffer: only set on fresh press, let it decay naturally
     if (jumpPressedThisFrame) {
       this.jumpQueued = true;
-      this.jumpBufferTimer = JUMP_BUFFER_TIME;
-    } else if (this.jumpQueued && !this.jumpConsumedUntilRelease && jumpHeld) {
       this.jumpBufferTimer = JUMP_BUFFER_TIME;
     } else {
       this.jumpBufferTimer = Math.max(0, this.jumpBufferTimer - deltaTime);
@@ -95,36 +96,42 @@ export class World {
       this.jumpConsumedUntilRelease = false;
     }
 
-    this.coyoteTimer = this.player.grounded ? COYOTE_TIME : Math.max(0, this.coyoteTimer - deltaTime);
+    // Coyote time: refresh based on last step's grounded state
+    this.coyoteTimer = this.wasGroundedLastStep ? COYOTE_TIME : Math.max(0, this.coyoteTimer - deltaTime);
 
+    // Horizontal velocity
     this.player.velocityX = updateHorizontalVelocity(
       {
         velocityX: this.player.velocityX,
         velocityY: this.player.velocityY,
-        grounded: this.player.grounded,
+        grounded: this.wasGroundedLastStep,
       },
       {
         direction: direction as -1 | 0 | 1,
         jumpPressed: false,
+        jumpHeld: false,
       },
       PLAYER_CONFIG,
       deltaTime,
     );
 
+    // Vertical velocity: pass jumpHeld for variable jump height
     this.player.velocityY = updateVerticalVelocity(
       {
         velocityX: this.player.velocityX,
         velocityY: this.player.velocityY,
-        grounded: false,
+        grounded: this.wasGroundedLastStep,
       },
       {
         direction: direction as -1 | 0 | 1,
         jumpPressed: false,
+        jumpHeld: jumpHeld,
       },
       PLAYER_CONFIG,
       deltaTime,
     );
 
+    // Collision resolution
     const movement = resolveAxisAlignedMovement(
       this.player.getBounds(),
       this.player.velocityX * deltaTime,
@@ -148,34 +155,32 @@ export class World {
       this.player.velocityY = 0;
     }
 
-    if (this.player.y + this.player.height > this.worldHeight) {
-      this.player.y = this.worldHeight - this.player.height;
-      this.player.velocityY = 0;
-      this.player.grounded = true;
-      this.coyoteTimer = COYOTE_TIME;
+    // World bottom boundary: fall death
+    if (this.player.y > this.worldHeight) {
+      this.restart();
+      return;
     }
 
+    // Clamp to left boundary
+    if (this.player.x < 0) {
+      this.player.x = 0;
+      if (this.player.velocityX < 0) {
+        this.player.velocityX = 0;
+      }
+    }
+
+    // Jump execution (after collision resolution)
     const canJumpNow = this.jumpQueued && this.jumpBufferTimer > 0 && this.coyoteTimer > 0 && !this.jumpConsumedUntilRelease;
     if (canJumpNow) {
-      this.player.velocityY = updateVerticalVelocity(
-        {
-          velocityX: this.player.velocityX,
-          velocityY: this.player.velocityY,
-          grounded: true,
-        },
-        {
-          direction: direction as -1 | 0 | 1,
-          jumpPressed: true,
-        },
-        PLAYER_CONFIG,
-        deltaTime,
-      );
+      this.player.velocityY = -PLAYER_CONFIG.jumpVelocity;
       this.player.grounded = false;
       this.jumpQueued = false;
       this.jumpConsumedUntilRelease = true;
       this.jumpBufferTimer = 0;
       this.coyoteTimer = 0;
     }
+
+    this.wasGroundedLastStep = this.player.grounded;
 
     if (intersects(this.player.getBounds(), this.goal.getBounds())) {
       this.won = true;

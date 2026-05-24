@@ -5,25 +5,44 @@ const MOVEMENT_KEYS = {
   restart: ['KeyR'],
 } as const;
 
+const ALL_GAME_KEYS = new Set<string>([
+  ...MOVEMENT_KEYS.left,
+  ...MOVEMENT_KEYS.right,
+  ...MOVEMENT_KEYS.jump,
+  ...MOVEMENT_KEYS.restart,
+]);
+
 export class InputManager {
   private readonly pressedKeys = new Set<string>();
   private readonly justPressedKeys = new Set<string>();
 
   private readonly onKeyDown = (event: KeyboardEvent): void => {
+    if (event.repeat) return;
+
     if (!this.pressedKeys.has(event.code)) {
       this.justPressedKeys.add(event.code);
     }
 
     this.pressedKeys.add(event.code);
+
+    if (ALL_GAME_KEYS.has(event.code)) {
+      event.preventDefault();
+    }
   };
 
   private readonly onKeyUp = (event: KeyboardEvent): void => {
     this.pressedKeys.delete(event.code);
   };
 
+  private readonly onBlur = (): void => {
+    this.pressedKeys.clear();
+    this.justPressedKeys.clear();
+  };
+
   constructor() {
     window.addEventListener('keydown', this.onKeyDown);
     window.addEventListener('keyup', this.onKeyUp);
+    window.addEventListener('blur', this.onBlur);
   }
 
   beginFrame(): void {
@@ -53,5 +72,6 @@ export class InputManager {
   dispose(): void {
     window.removeEventListener('keydown', this.onKeyDown);
     window.removeEventListener('keyup', this.onKeyUp);
+    window.removeEventListener('blur', this.onBlur);
   }
 }
