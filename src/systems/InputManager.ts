@@ -2,6 +2,7 @@ const MOVEMENT_KEYS = {
   left: ['ArrowLeft', 'KeyA'],
   right: ['ArrowRight', 'KeyD'],
   jump: ['Space', 'ArrowUp', 'KeyW'],
+  dash: ['ShiftLeft', 'ShiftRight', 'KeyJ'],
   restart: ['KeyR'],
 } as const;
 
@@ -9,6 +10,7 @@ const ALL_GAME_KEYS = new Set<string>([
   ...MOVEMENT_KEYS.left,
   ...MOVEMENT_KEYS.right,
   ...MOVEMENT_KEYS.jump,
+  ...MOVEMENT_KEYS.dash,
   ...MOVEMENT_KEYS.restart,
 ]);
 
@@ -67,6 +69,14 @@ export class InputManager {
 
   wasRestartPressed(): boolean {
     return MOVEMENT_KEYS.restart.some((code) => this.justPressedKeys.has(code));
+  }
+
+  isDashHeld(): boolean {
+    return MOVEMENT_KEYS.dash.some((code) => this.pressedKeys.has(code));
+  }
+
+  wasDashPressed(): boolean {
+    return MOVEMENT_KEYS.dash.some((code) => this.justPressedKeys.has(code));
   }
 
   dispose(): void {

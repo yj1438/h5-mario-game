@@ -12,6 +12,16 @@ export interface GoalData {
   height: number;
 }
 
+export interface CoinSpawn {
+  x: number;
+  y: number;
+}
+
+export interface EnemySpawn {
+  x: number;
+  y: number;
+}
+
 export interface LevelData {
   name: string;
   width: number;
@@ -19,4 +29,6 @@ export interface LevelData {
   tiles: TileValue[][];
   playerSpawn: SpawnPoint;
   goal: GoalData;
+  enemies?: EnemySpawn[];
+  coins?: CoinSpawn[];
 }

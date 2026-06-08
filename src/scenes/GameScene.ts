@@ -26,9 +26,10 @@ export class GameScene implements Scene {
     }
 
     this.world.update(deltaTime, this.game.input);
+    this.hud.setScore(this.world.coinCount, this.world.totalCoins, this.world.score);
 
     if (this.world.won) {
-      this.hud.setStatus('通关成功，按 R 再来一次');
+      this.hud.setStatus('通关成功！按 R 再来一次');
       return;
     }
 
