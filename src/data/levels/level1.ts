@@ -29,4 +29,38 @@ export const level1: LevelData = {
     width: 56,
     height: 96,
   },
+  enemies: [
+    // Ground patrol near the start
+    { x: 400, y: 396 },
+    // Ground patrol in the middle
+    { x: 900, y: 396 },
+    // Ground patrol near the end
+    { x: 1400, y: 396 },
+    // Platform patrol on the 2nd platform from left
+    { x: 600, y: 204 },
+  ],
+  coins: [
+    // Ground coins — early path
+    { x: 200, y: 400 },
+    { x: 250, y: 400 },
+    { x: 300, y: 400 },
+    // Near first enemy
+    { x: 480, y: 400 },
+    // Middle ground coins
+    { x: 700, y: 400 },
+    { x: 750, y: 400 },
+    { x: 800, y: 400 },
+    // Platform coins — 2nd platform from left (row 8)
+    { x: 600, y: 350 },
+    { x: 650, y: 350 },
+    { x: 700, y: 350 },
+    // Platform coins — 3rd platform (row 6)
+    { x: 1050, y: 250 },
+    { x: 1100, y: 250 },
+    { x: 1150, y: 250 },
+    // High platform coins — 4th platform (row 4)
+    { x: 1450, y: 150 },
+    { x: 1500, y: 150 },
+    { x: 1550, y: 150 },
+  ],
 };

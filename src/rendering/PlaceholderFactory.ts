@@ -41,6 +41,29 @@ export const createGoalView = (width: number, height: number): Container => {
   return container;
 };
 
+export const createCoinView = (size: number): Container => {
+  const container = new Container();
+  const body = createRect(size, size, 0xfacc15, size / 2);
+  const highlight = createRect(size * 0.4, size * 0.4, 0xfde68a, size * 0.2);
+  highlight.x = size * 0.15;
+  highlight.y = size * 0.15;
+  container.addChild(body, highlight);
+  return container;
+};
+
+export const createEnemyView = (width: number, height: number): Container => {
+  const container = new Container();
+  const body = createRect(width, height, 0x9333ea, 6);
+  const eyes = createRect(width * 0.5, 8, 0xffffff, 2);
+  eyes.x = width * 0.25;
+  eyes.y = height * 0.2;
+  const pupils = createRect(width * 0.3, 6, 0x000000, 2);
+  pupils.x = width * 0.35;
+  pupils.y = height * 0.22;
+  container.addChild(body, eyes, pupils);
+  return container;
+};
+
 export const createTerrainTile = (x: number, y: number): Graphics => {
   const tile = createRect(TILE_SIZE, TILE_SIZE, 0x8b5a2b, 6);
   tile.position.set(x, y);

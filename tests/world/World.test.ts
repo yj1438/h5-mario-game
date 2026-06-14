@@ -9,6 +9,8 @@ vi.mock('../../src/rendering/PlaceholderFactory', () => ({
   createGoalView: () => new Container(),
   createPlayerView: () => new Container(),
   createTerrainTile: () => new Container(),
+  createCoinView: () => new Container(),
+  createEnemyView: () => new Container(),
 }));
 
 beforeAll(() => {
@@ -33,6 +35,18 @@ class MockInput {
 
   wasJumpPressed(): boolean {
     return this.jumpPressed;
+  }
+
+  wasRestartPressed(): boolean {
+    return false;
+  }
+
+  isDashHeld(): boolean {
+    return false;
+  }
+
+  wasDashPressed(): boolean {
+    return false;
   }
 
   beginFrame(): void {
